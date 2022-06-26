@@ -17,12 +17,12 @@
 #define EASYLOGGING_CC
 #include "easylogging++.h"
 
-#include <atomic>
+//#include <atomic>
 #include <unistd.h>
 
-#if defined(AUTO_INITIALIZE_EASYLOGGINGPP)
+//#if defined(AUTO_INITIALIZE_EASYLOGGINGPP)
 INITIALIZE_EASYLOGGINGPP
-#endif
+//#endif
 
 namespace el {
 
@@ -856,20 +856,20 @@ std::size_t File::getSizeOfFile(base::type::fstream_t* fs) {
 }
 
 bool File::pathExists(const char* path, bool considerFile) {
-  if (path == nullptr) {
-    return false;
-  }
-#if ELPP_OS_UNIX
-  ELPP_UNUSED(considerFile);
-  struct stat st;
-  return (stat(path, &st) == 0);
-#elif ELPP_OS_WINDOWS
-  DWORD fileType = GetFileAttributesA(path);
-  if (fileType == INVALID_FILE_ATTRIBUTES) {
-    return false;
-  }
-  return considerFile ? true : ((fileType & FILE_ATTRIBUTE_DIRECTORY) == 0 ? false : true);
-#endif  // ELPP_OS_UNIX
+//   if (path == nullptr) {
+//     return false;
+//   }
+// #if ELPP_OS_UNIX
+//   ELPP_UNUSED(considerFile);
+//   struct stat st;
+//   return (stat(path, &st) == 0);
+// #elif ELPP_OS_WINDOWS
+//   DWORD fileType = GetFileAttributesA(path);
+//   if (fileType == INVALID_FILE_ATTRIBUTES) {
+//     return false;
+//   }
+//   return considerFile ? true : ((fileType & FILE_ATTRIBUTE_DIRECTORY) == 0 ? false : true);
+return false;// #endif  // ELPP_OS_UNIX
 }
 
 bool File::createPath(const std::string& path) {
@@ -1162,40 +1162,40 @@ std::string OS::getDeviceName(void) {
 #endif  // ELPP_OS_ANDROID
 
 const std::string OS::getBashOutput(const char* command) {
-#if (ELPP_OS_UNIX && !ELPP_OS_ANDROID && !ELPP_CYGWIN)
-  if (command == nullptr) {
+//#if (ELPP_OS_UNIX && !ELPP_OS_ANDROID && !ELPP_CYGWIN)
+  //if (command == nullptr) {
     return std::string();
-  }
-  FILE* proc = nullptr;
-  if ((proc = popen(command, "r")) == nullptr) {
-    ELPP_INTERNAL_ERROR("\nUnable to run command [" << command << "]", true);
-    return std::string();
-  }
-  char hBuff[4096];
-  if (fgets(hBuff, sizeof(hBuff), proc) != nullptr) {
-    pclose(proc);
-    const std::size_t buffLen = strlen(hBuff);
-    if (buffLen > 0 && hBuff[buffLen - 1] == '\n') {
-      hBuff[buffLen- 1] = '\0';
-    }
-    return std::string(hBuff);
-  } else {
-    pclose(proc);
-  }
-  return std::string();
-#else
-  ELPP_UNUSED(command);
-  return std::string();
-#endif  // (ELPP_OS_UNIX && !ELPP_OS_ANDROID && !ELPP_CYGWIN)
+//   }
+//   FILE* proc = nullptr;
+//   if ((proc = popen(command, "r")) == nullptr) {
+//     ELPP_INTERNAL_ERROR("\nUnable to run command [" << command << "]", true);
+//     return std::string();
+//   }
+//   char hBuff[4096];
+//   if (fgets(hBuff, sizeof(hBuff), proc) != nullptr) {
+//     pclose(proc);
+//     const std::size_t buffLen = strlen(hBuff);
+//     if (buffLen > 0 && hBuff[buffLen - 1] == '\n') {
+//       hBuff[buffLen- 1] = '\0';
+//     }
+//     return std::string(hBuff);
+//   } else {
+//     pclose(proc);
+//   }
+//   return std::string();
+// #else
+//   ELPP_UNUSED(command);
+//   return std::string();
+// #endif  // (ELPP_OS_UNIX && !ELPP_OS_ANDROID && !ELPP_CYGWIN)
 }
 
 std::string OS::getEnvironmentVariable(const char* variableName, const char* defaultVal,
                                        const char* alternativeBashCommand) {
-#if ELPP_OS_UNIX
+//#if ELPP_OS_UNIX
   const char* val = getenv(variableName);
-#elif ELPP_OS_WINDOWS
-  const char* val = getWindowsEnvironmentVariable(variableName);
-#endif  // ELPP_OS_UNIX
+// #elif ELPP_OS_WINDOWS
+//   const char* val = getWindowsEnvironmentVariable(variableName);
+// #endif  // ELPP_OS_UNIX
   if ((val == nullptr) || ((strcmp(val, "") == 0))) {
 #if ELPP_OS_UNIX && defined(ELPP_FORCE_ENV_VAR_FROM_BASH)
     // Try harder on unix-based systems
@@ -1271,7 +1271,7 @@ void DateTime::gettimeofday(struct timeval* tv) {
     tv->tv_usec = static_cast<long>(present % usecOffSet);
   }
 #else
-  ::gettimeofday(tv, nullptr);
+ // ::gettimeofday(tv, nullptr);
 #endif  // ELPP_OS_WINDOWS
 }
 
@@ -2133,7 +2133,7 @@ static int priority(Level level) {
 
 namespace
 {
-  std::atomic<int> s_lowest_priority{INT_MAX};
+  int s_lowest_priority{INT_MAX};
 }
 
 void VRegistry::clearCategories(void) {
@@ -3272,7 +3272,7 @@ static std::string crashReason(int sig) {
 }
 /// @brief Logs reason of crash from sig
 static void logCrashReason(int sig, bool stackTraceIfAvailable, Level level, const char* logger) {
-  if (sig == SIGINT && ELPP->hasFlag(el::LoggingFlag::IgnoreSigInt)) {
+  if (sig == 2 && ELPP->hasFlag(el::LoggingFlag::IgnoreSigInt)) {
     return;
   }
   std::stringstream ss;
@@ -3309,15 +3309,15 @@ CrashHandler::CrashHandler(bool useDefault) {
 }
 
 void CrashHandler::setHandler(const Handler& cHandler) {
-  m_handler = cHandler;
-#if defined(ELPP_HANDLE_SIGABRT)
-  int i = 0;  // SIGABRT is at base::consts::kCrashSignals[0]
-#else
-  int i = 1;
-#endif  // defined(ELPP_HANDLE_SIGABRT)
-  for (; i < base::consts::kCrashSignalsCount; ++i) {
-    m_handler = signal(base::consts::kCrashSignals[i].numb, cHandler);
-  }
+//   m_handler = cHandler;
+// #if defined(ELPP_HANDLE_SIGABRT)
+//   int i = 0;  // SIGABRT is at base::consts::kCrashSignals[0]
+// #else
+//   int i = 1;
+// #endif  // defined(ELPP_HANDLE_SIGABRT)
+//   for (; i < base::consts::kCrashSignalsCount; ++i) {
+//     m_handler = signal(base::consts::kCrashSignals[i].numb, cHandler);
+//   }
 }
 
 #endif // defined(ELPP_FEATURE_ALL) || defined(ELPP_FEATURE_CRASH_LOG)

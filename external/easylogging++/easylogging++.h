@@ -125,11 +125,11 @@
 #else
 #  define ELPP_OS_NETBSD 0
 #endif
-#if defined(__EMSCRIPTEN__)
+//#if defined(__EMSCRIPTEN__)
 #  define ELPP_OS_EMSCRIPTEN 1
-#else
-#  define ELPP_OS_EMSCRIPTEN 0
-#endif
+//#else
+//#  define ELPP_OS_EMSCRIPTEN 0
+//#endif
 #if (defined(__DragonFly__))
 #   define ELPP_OS_DRAGONFLY 1
 #else
@@ -370,7 +370,7 @@ ELPP_INTERNAL_DEBUGGING_OUT_INFO << ELPP_INTERNAL_DEBUGGING_MSG(internalInfoStre
 #include <cstdlib>
 #include <cctype>
 #include <cwchar>
-#include <csignal>
+//#include <csignal>
 #include <cerrno>
 #include <cstdarg>
 #if defined(ELPP_UNICODE)
@@ -813,23 +813,23 @@ const struct {
 } kCrashSignals[] = {
   // NOTE: Do not re-order, if you do please check CrashHandler(bool) constructor and CrashHandler::setHandler(..)
   {
-    SIGABRT, "SIGABRT", "Abnormal termination",
+    6, "SIGABRT", "Abnormal termination",
     "Program was abnormally terminated."
   },
   {
-    SIGFPE, "SIGFPE", "Erroneous arithmetic operation",
+    8, "SIGFPE", "Erroneous arithmetic operation",
     "Arithemetic operation issue such as division by zero or operation resulting in overflow."
   },
   {
-    SIGILL, "SIGILL", "Illegal instruction",
+    9, "SIGILL", "Illegal instruction",
     "Generally due to a corruption in the code or to an attempt to execute data."
   },
   {
-    SIGSEGV, "SIGSEGV", "Invalid access to memory",
+    11, "SIGSEGV", "Invalid access to memory",
     "Program is trying to read an invalid (unallocated, deleted or corrupted) or inaccessible memory."
   },
   {
-    SIGINT, "SIGINT", "Interactive attention signal",
+    2, "SIGINT", "Interactive attention signal",
     "Interruption generated (generally) by user or operating system."
   },
 };
